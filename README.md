@@ -10,6 +10,54 @@
 - **Disposable Email Detection**: Flags temporary or disposable email addresses commonly used for short-term or spam purposes.
 - **Role Address Detection**: Identifies role-based addresses (like `support@`, `info@`, etc.), often used by businesses.
 
+## Usage
+
+**Email Verifier** allows you to check a single email or multiple email addresses at once. Here’s how to use the tool:
+
+### 1. **First Input Field**: **Valid Email Address**
+- Enter a valid email address in the first field. This is needed because some email providers check for **real connections** before accepting emails.
+
+### 2. **Second Input Field**: **Port**
+- Enter the port number for the SMTP server (the default port is **25**). You can specify any port you need to connect to the email server.
+
+### 3. **Third Input Field**: **Email Check/Verifier**
+- This field allows you to check one or multiple email addresses. You can enter a **single email** or **bulk email addresses**, separated by a newline.
+
+### Example of Response Results:
+
+When you check an email or multiple emails, the response will look like this:
+
+```json
+[
+  {
+    "email": "info@domain.com",
+    "format_valid": true,
+    "mx_found": true,
+    "smtp_check": true,
+    "catch_all": true,
+    "role": true,
+    "disposable": false
+  },
+  {
+    "email": "contact@example.com",
+    "format_valid": true,
+    "mx_found": true,
+    "smtp_check": true,
+    "catch_all": true,
+    "role": true,
+    "disposable": false
+  }
+]
+```
+
+This JSON response provides details about each email's validation, including whether it is:
+- **format_valid**: Whether the email is correctly formatted.
+- **mx_found**: Whether the domain has valid MX records.
+- **smtp_check**: Whether the email server accepts the address.
+- **catch_all**: Whether the domain accepts all emails, even if the specific address doesn’t exist.
+- **role**: Whether the email is a role-based address (e.g., `support@`).
+- **disposable**: Whether the email address is from a disposable provider.
+
 ## Why Use Email Verifier?
 
 By using an Email Verifier, you can ensure:
