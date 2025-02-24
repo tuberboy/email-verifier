@@ -11,7 +11,9 @@ class EmailVerifier {
     private $_hotmail_username_check_url = 'https://login.live.com/GetCredentialType.srf?wa=wsignin1.0';
     private $_hotmail_domains = ['hotmail.com', 'live.com', 'outlook.com', 'msn.com'];
     private $page_content, $page_headers;
+    // Collect role prefixes from GitHub, search engines, and add them here.
     private $role_prefixes = ['admin', 'support', 'info', 'contact', 'webmaster', 'sales', 'help', 'service'];
+    // Also collect temp|disposable domains from GitHub, search engines, and add them here.
     private $disposable_domains = ['mailinator.com', '10minutemail.com', 'guerrillamail.com', 'yopmail.com'];
 
     public function __construct($verifier_email = null, $port = 25, $email = null) {
