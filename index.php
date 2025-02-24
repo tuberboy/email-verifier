@@ -1,132 +1,70 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <meta name="robots" content="index, follow">
     <meta name="author" content="Tuber Boy">
-    <title>Email Checker</title>
-    <style>
-		body {
-		  margin: 0;
-		  padding: 0;
-		  font-family: Arial, sans-serif;
-		  display: flex;
-		  justify-content: center;
-		  align-items: center;
-		  min-height: 100vh;
-		  background: linear-gradient(to bottom, #3498db, #1abc9c);
-		}
-
-		.container {
-		  text-align: center;
-		  background-color: rgba(255, 255, 255, 0.8);
-		  padding: 20px;
-		  border-radius: 10px;
-		  box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.3);
-		  width: 500px;
-		  margin-left: 10px;
-		}
-		.blur {
-		  filter: blur(5px); 
-		  pointer-events: none; 
-		  transition: filter 0.3s ease-in-out;
-		}
-		h1 {
-		  margin-bottom: 20px;
-		  color: #333;
-		}
-
-		.email-input {
-		  width: 80%;
-		  padding: 10px;
-		  border: none;
-		  border-radius: 5px;
-		  margin-bottom: 10px;
-		  box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.2);
-		}
-
-		.submit-btn {
-		  background-color: #16a085;
-		  color: #fff;
-		  border: none;
-		  padding: 10px 20px;
-		  border-radius: 5px;
-		  cursor: pointer;
-		  transition: background-color 0.3s ease-in-out;
-		}
-
-		.submit-btn:hover {
-		  background-color: #1abc9c;
-		}
-	</style>
+    <title>Email Verifier - Check if an Email is Valid or Invalid</title>
+    <meta name="msapplication-TileColor" content="#786fff">
+    <meta name="theme-color" content="#786fff">
+    <link rel="shortcut icon" href="assets/favicon.ico" type="image/x-icon">
+    <link rel="icon" href="assets/favicon.ico" type="image/x-icon">
+    <link rel="stylesheet" href="assets/styles.css?v=0.0.1">
 </head>
 <body>
+    <div class="header"><a href="">Verify Email [&#x21A9;</a></div>
 <?php
 set_time_limit(0);
+require __DIR__."/email_verifier.php";
 
-/**
- * Email Checker: Created or Exists Or Active
- * Author: Tuber Boy (Masud Rana)
- * Date-Time: 7:12 PM Tuesday, August 27, 2024 (GMT+6)
- **/
-
-function checkEmailCreated($email) {
-    list($user, $domain) = explode('@', $email);
-    if (!checkdnsrr($domain, 'MX')) {
-        return false;
-    }
-    $mxHosts = [];
-    getmxrr($domain, $mxHosts);
-    foreach ($mxHosts as $mxHost) {
-        $timeout = 15;
-        $smtpConnection = fsockopen($mxHost, 25, $errno, $errstr, $timeout);
-        if ($smtpConnection) {
-            $response = fgets($smtpConnection);
-            if (strpos($response, '220') === 0) {
-                fputs($smtpConnection, "HELO " . gethostname() . "\r\n");
-                $response = fgets($smtpConnection);
-                fputs($smtpConnection, "MAIL FROM: <test@example.com>\r\n");
-                $response = fgets($smtpConnection);
-                fputs($smtpConnection, "RCPT TO: <$email>\r\n");
-                $response = fgets($smtpConnection);
-                if (strpos($response, '250') === 0) {
-                    fclose($smtpConnection);
-                    return true;
-                } elseif (strpos($response, '550') !== false) {
-                    if (strpos($response, '5.7.1') !== false || strpos($response, 'Service unavailable') !== false) {
-                        fclose($smtpConnection);
-                        return true;
-                    }
-                }
-            }
-            fclose($smtpConnection);
-        } else {
-			return false;
+if (isset($_POST["check"])) {
+    $validEmail = $_POST["ve"];
+    $usePort = $_POST["up"];
+    $checkEmails = explode(PHP_EOL, trim($_POST["ce"]));
+    $results = [];
+    foreach ($checkEmails as $email) {
+        $email = trim($email);
+        if (!empty($email)) {
+            $ve = new EmailVerifier($validEmail, $usePort, $email);
+            $results[] = $ve->verify();
         }
     }
-    return false;
-}
-
-if (isset($_POST['email'])) {
-	$email = $_POST['email'];
-	if (filter_var($email, FILTER_VALIDATE_EMAIL)) {
-		if (checkEmailCreated($email)) {
-			echo '<div class="container"><h1><font color="blue">The email address `'.$email.'` is available!</font></h1></div>';
-		} else {
-			echo '<div class="container"><h1><font color="red">The email address `'.$email.'` is not created!</font></h1></div>';
-		}
-	} else {
-		echo '<div class="container"><h1><font color="warning">The email address `'.$email.'` is not valid!</font></h1></div>';
-	}
+    $result = json_encode($results);
+    echo '<div class="box"><div class="title">RESULTS</div>'.$result.'</div>';
+    /*
+    // To Decode JSON to PHP array
+    $dataArray = json_decode($result, true);
+    foreach ($dataArray as $data) {
+        echo $data['email']."<br>"; // email, format_valid, mx_found, smtp_check, catch_all, role, disposable
+    }
+    print_r($dataArray);
+    */
 }
 ?>
-  <div class="container">
-    <h1>Email Checker</h1>
-    <form method="POST">
-      <input type="email" name="email" class="email-input" placeholder="Enter your email *" required>
-      <button type="submit" class="submit-btn">CHECK</button>
-    </form>
-  </div>
+    <div class="box">
+        <div class="title">CHECK EMAIL VALIDATION</div>
+        <form method="post">
+            <input type="email" name="ve" placeholder="Enter your valid email *" value="<?php if (isset($_POST['check'])) { echo $_POST['ve']; } ?>" autocomplete="off" required>
+            <input type="number" name="up" placeholder="Enter port to check - default: 25 *" value="<?php if (isset($_POST['check'])) { echo $_POST['up']; } else { echo 25; } ?>" autocomplete="off" required>
+            <textarea type="text" name="ce" placeholder="Enter email (bulk supports) to check *" autocomplete="off" required></textarea>
+            <input type="checkbox" class="vanish-checkbox" id="vanishCheckbox">
+            <div class="vanish-button-container">
+                <button name="check"><label for="vanishCheckbox">SUBMIT</label></button>
+		        <div class="please-wait">Please wait, checking...<span><i></i><i></i><i></i></span></div>
+            </div>
+        </form>
+    </div>
+    <div class="box">
+        <div class="title">Information</div>
+        <b>email</b>: The email address being verified.<br>
+        <b>format_valid</b>: Checks if the email format is valid.<br>
+        <b>mx_found</b>: Determines if the domain has valid mail exchange (MX) records.<br>
+        <b>smtp_check</b>: Verifies if the email server accepts messages.<br>
+        <b>catch_all</b>: Indicates if the domain accepts all emails, even invalid ones.<br>
+        <b>role</b>: Used for company-wide purposes, managed by multiple people. Common examples: billing@, contact@, info@, support@, ceo@, admin@<br>
+        <b>disposable</b>: Identifies if the email comes from a temporary or disposable email provider.
+    </div>
+    <div class="footer">&copy; Copyright <?php echo date("Y"); ?> - <a href="/">VE</a></div>
 </body>
 </html>
