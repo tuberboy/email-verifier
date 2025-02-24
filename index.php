@@ -50,7 +50,7 @@ if (isset($_POST["check"])) {
             <textarea type="text" name="ce" placeholder="Enter email (bulk supports) to check *" autocomplete="off" required></textarea>
             <input type="checkbox" class="vanish-checkbox" id="vanishCheckbox">
             <div class="vanish-button-container">
-                <button name="check"><label for="vanishCheckbox">SUBMIT</label></button>
+                <button name="check"><label for="vanishCheckbox">VERIFY</label></button>
 		        <div class="please-wait">Please wait, checking...<span><i></i><i></i><i></i></span></div>
             </div>
         </form>
@@ -65,6 +65,6 @@ if (isset($_POST["check"])) {
         <b>role</b>: Used for company-wide purposes, managed by multiple people. Common examples: billing@, contact@, info@, support@, ceo@, admin@<br>
         <b>disposable</b>: Identifies if the email comes from a temporary or disposable email provider.
     </div>
-    <div class="footer">&copy; Copyright <?php echo date("Y"); ?> - <a href="/">VE</a></div>
+    <div class="footer">&copy; Copyright <?php echo date("Y"); ?> - <a href="">Email Verifier</a></div>
 </body>
 </html>
